@@ -1,7 +1,7 @@
 import { motorcycle } from "./motorcycle.class";
 import { ticket } from "./ticket.class";
 export class motorcycleTicket extends ticket {
-  id: string;
+  id!: string ;
   price: motorcycle;
   constructor() {
     super();
