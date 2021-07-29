@@ -1,0 +1,19 @@
+{
+  "name": "client-lottery",
+  "version": "1.0.0",
+  "description": "client lottery",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yanaNk/lottery.git"
+  },
+  "author": "yana karas",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yanaNk/lottery/issues"
+  },
+  "homepage": "https://github.com/yanaNk/lottery#readme"
+}
