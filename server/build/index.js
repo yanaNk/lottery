@@ -5,14 +5,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var ticketsMethods_1 = require("./ticketsMethods");
 var express_1 = __importDefault(require("express"));
-var bodyParser = require("body-parser");
-var json = require("body-parser").json;
+var body_parser_1 = __importDefault(require("body-parser"));
+var body_parser_2 = require("body-parser");
 var app = express_1.default();
 app.listen(3000, function () {
     console.log("Server running on port 3000");
 });
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(json());
+app.use(body_parser_1.default.urlencoded({ extended: false }));
+app.use(body_parser_2.json());
 var ticketsLists = [];
 app.get("/notfication", function (req, res, next) {
     var result = ticketsMethods_1.checkAnyNotValidated(ticketsLists);
