@@ -4,15 +4,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var ticketsMethods_1 = require("./ticketsMethods");
+var _a = require('./utils'), refreshTokens = _a.refreshTokens, COOKIE_OPTIONS = _a.COOKIE_OPTIONS, generateToken = _a.generateToken, generateRefreshToken = _a.generateRefreshToken, getCleanUser = _a.getCleanUser, verifyToken = _a.verifyToken, clearTokens = _a.clearTokens, handleResponse = _a.handleResponse;
 var express_1 = __importDefault(require("express"));
 var body_parser_1 = __importDefault(require("body-parser"));
 var body_parser_2 = require("body-parser");
+var cors_1 = __importDefault(require("cors"));
 var app = express_1.default();
 app.listen(3000, function () {
     console.log("Server running on port 3000");
 });
-app.use(body_parser_1.default.urlencoded({ extended: false }));
+app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use(body_parser_2.json());
+app.use(cors_1.default({
+    origin: "http://localhost:3000",
+    credentials: true,
+}));
+app.post("/users/logout", function (req, res) {
+    clearTokens(req, res);
+    return handleResponse(req, res, 204);
+});
 var ticketsLists = [];
 app.get("/notfication", function (req, res, next) {
     var result = ticketsMethods_1.checkAnyNotValidated(ticketsLists);
