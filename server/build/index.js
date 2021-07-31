@@ -4,7 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var ticketsMethods_1 = require("./ticketsMethods");
-var _a = require('./utils'), refreshTokens = _a.refreshTokens, COOKIE_OPTIONS = _a.COOKIE_OPTIONS, generateToken = _a.generateToken, generateRefreshToken = _a.generateRefreshToken, getCleanUser = _a.getCleanUser, verifyToken = _a.verifyToken, clearTokens = _a.clearTokens, handleResponse = _a.handleResponse;
+var userLists_1 = require("./userLists");
+var utils_1 = require("./utils");
 var express_1 = __importDefault(require("express"));
 var body_parser_1 = __importDefault(require("body-parser"));
 var body_parser_2 = require("body-parser");
@@ -15,13 +16,40 @@ app.listen(3000, function () {
 });
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use(body_parser_2.json());
-app.use(cors_1.default({
-    origin: "http://localhost:3000",
-    credentials: true,
-}));
+app.use(cors_1.default());
+app.post("/users/signin", function (req, res) {
+    var user = req.body.username;
+    var pwd = req.body.password;
+    // return 400 status if username/password is not exist
+    if (!user || !pwd) {
+        return utils_1.handleResponse(req, res, 400, {}, "Username and Password required.");
+    }
+    var userData = userLists_1.userList.find(function (x) { return x.username === user && x.password === pwd; });
+    // return 401 status if the credential is not matched
+    if (!userData) {
+        return utils_1.handleResponse(req, res, 401, {}, "Username or Password is Wrong.");
+    }
+    // get basic user details
+    var userObj = utils_1.getCleanUser(userData);
+    // generate access token
+    var tokenObj = utils_1.generateToken(userData);
+    // generate refresh token
+    var refreshToken = utils_1.generateRefreshToken(userObj === null || userObj === void 0 ? void 0 : userObj.userId) || 0;
+    // refresh token list to manage the xsrf token
+    if (refreshToken != null)
+        utils_1.refreshTokens[refreshToken] = tokenObj === null || tokenObj === void 0 ? void 0 : tokenObj.xsrfToken;
+    // set cookies
+    //res.cookie("refreshToken", refreshToken, COOKIE_OPTIONS);
+    res.cookie("XSRF-TOKEN", tokenObj === null || tokenObj === void 0 ? void 0 : tokenObj.xsrfToken);
+    return utils_1.handleResponse(req, res, 200, {
+        user: userObj,
+        token: tokenObj === null || tokenObj === void 0 ? void 0 : tokenObj.token,
+        expiredAt: tokenObj === null || tokenObj === void 0 ? void 0 : tokenObj.expiredAt,
+    }, "");
+});
 app.post("/users/logout", function (req, res) {
-    clearTokens(req, res);
-    return handleResponse(req, res, 204);
+    utils_1.clearTokens(req, res);
+    return utils_1.handleResponse(req, res, 204, {}, "");
 });
 var ticketsLists = [];
 app.get("/notfication", function (req, res, next) {

@@ -2,15 +2,13 @@
   "name": "lottery",
   "version": "1.0.0",
   "description": "lottery app",
-  "main": "./index.ts",
+  "main": ".index.ts",
   "type": "commonjs",
   "scripts": {
     "test": "ng test",
-    "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
     "tsc": "tsc",
-    "build": "tsc",
-    "start": "node .",
-    "prestart": "npm run build"
+    "dev": "ts-node-dev --respawn --transpileOnly ./index.ts",
+    "prod": "tsc && node ./build/app.js"
   },
   "repository": {
     "type": "git",

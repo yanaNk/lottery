@@ -1,5 +1,7 @@
 "use strict";
-var userList = [
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.userList = void 0;
+exports.userList = [
     {
         userId: "123",
         password: "user1",

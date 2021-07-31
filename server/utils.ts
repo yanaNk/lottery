@@ -3,13 +3,13 @@ import moment from 'moment';
 import { generate } from 'rand-token';
 import ms from 'ms';
 
-const dev = process.env.NODE_ENV !== 'production';
+export const dev = process.env.NODE_ENV !== 'production';
 
 // refresh token list to manage the xsrf token
-const refreshTokens = {};
+export const refreshTokens = {};
 
 // cookie options to create refresh token
-const COOKIE_OPTIONS = {
+export const COOKIE_OPTIONS = {
   // domain: "localhost",
   httpOnly: true,
   secure: !dev,
@@ -17,7 +17,7 @@ const COOKIE_OPTIONS = {
 };
 
 // generate tokens and return it
-function generateToken(user: { userId: any; name: any; username: any; isAdmin: any; }) {
+export function generateToken(user: { userId: any; name: any; username: any; isAdmin: any; }) {
   if (!user) return null;
 
   const u = {
@@ -34,7 +34,7 @@ function generateToken(user: { userId: any; name: any; username: any; isAdmin: a
   const privateKey = process.env.JWT_SECRET + xsrfToken;
 
   // generate access token and expiry date
-  const token = sign(u, privateKey, { expiresIn: process.env.ACCESS_TOKEN_LIFE });
+  const token = sign(u, privateKey, { expiresIn: 1000000000000 });
 
   // expiry time of the access token
   const expiredAt = moment().add(ms(5 ), 'ms').valueOf();
@@ -47,20 +47,20 @@ function generateToken(user: { userId: any; name: any; username: any; isAdmin: a
 }
 
 // generate refresh token
-function generateRefreshToken(userId: any) {
+export function generateRefreshToken(userId: any) {
   if (!userId) return null;
 
-  return sign({ userId }, "jj" , { expiresIn: process.env.REFRESH_TOKEN_LIFE });
+  return sign({ userId }, "jj" , { expiresIn: 1000000000000000 });
 }
 
 // verify access token and refresh token
-function verifyToken(token: string, xsrfToken = '', cb: VerifyOptions & { complete: true; }) {
+export function verifyToken(token: string, xsrfToken = '', cb: VerifyOptions & { complete: true; }) {
   const privateKey = process.env.JWT_SECRET + xsrfToken;
   verify(token, privateKey, cb);
 }
 
 // return basic user details
-function getCleanUser(user:any) {
+export function getCleanUser(user:any) {
   if (!user) return null;
 
   return {
@@ -72,7 +72,7 @@ function getCleanUser(user:any) {
 }
 
 // handle the API response
-function handleResponse(req: any, res: { sendStatus: (arg0: number) => any; status: (arg0: any) => { (): any; new(): any; json: { (arg0: any): any; new(): any; }; }; }, statusCode: any, data: {}, message: string) {
+export function handleResponse(req: any, res: any, statusCode: any, data: {}, message: string) {
   let isError = false;
   let errorMessage = message;
   switch (statusCode) {
@@ -103,10 +103,10 @@ function handleResponse(req: any, res: { sendStatus: (arg0: number) => any; stat
 }
 
 // clear tokens from cookie
-function clearTokens(req:any, res:any) {
+export function clearTokens(req:any, res:any) {
   const { signedCookies = {} } = req;
   const { refreshToken } = signedCookies;
-  //delete refreshTokens[refreshToken];
+  delete (refreshTokens as any)[refreshToken];
   res.clearCookie('XSRF-TOKEN');
   res.clearCookie('refreshToken', COOKIE_OPTIONS);
 }

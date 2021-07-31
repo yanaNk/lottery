@@ -1,4 +1,4 @@
-const userList = [
+export const userList = [
     {
       userId: "123",
       password: "user1",
