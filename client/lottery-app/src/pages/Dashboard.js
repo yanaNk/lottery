@@ -29,9 +29,10 @@ function Dashboard(props) {
           })
           .catch((error) => {
             setLoading(false);
-            if (error.response.status === 401)
-              setError(error.response.data.message);
-            else setError("Something went wrong. Please try again later.");
+            setError(
+              "Something went wrong. Please try again later." +
+                error.response.data.message
+            );
           });
     };
   const handleLogout = () => {
@@ -45,21 +46,22 @@ function Dashboard(props) {
     axios
       .post("http://localhost:3000/purchase")
       .then((data) => {
-        setRelevantId(data.data)
-        alert("ticketId "+ relevantId);
+        setRelevantId(data.data);
+        alert("ticketId " + relevantId);
         setLoading(false);
         handleAdd();
         getTicketList();
       })
       .catch((error) => {
         setLoading(false);
-        if(error.response != null){
-        if (error?.response?.status === 401)
-          setError(error?.response?.data?.message);
+        if (error.response != null) {
+          setError(
+            "Something went wrong. Please try again later." +
+              error?.response?.data?.message
+          );
         }
-        else setError("Something went wrong. Please try again later.");
       });
-  }
+  };
   const validate = () => {
       setError(null);
       setLoading(true);
@@ -70,6 +72,7 @@ function Dashboard(props) {
         .then((data) => {
           alert(data.data);
           setLoading(false);
+          getTicketList();
         })
         .catch((error) => {
           setLoading(false);
