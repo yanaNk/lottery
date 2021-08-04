@@ -4,6 +4,7 @@ import axios from "axios";
 import MenuToolBar from './ToolBar';
 import Button from '@material-ui/core/Button';
 import TicketsList from './TicketsList';
+import Spinner from 'react-spinner-material';
 
 function Dashboard(props) {
     const [loading, setLoading] = useState(false);
@@ -87,7 +88,7 @@ function Dashboard(props) {
      <MenuToolBar/>
       <Button variant="contained" color="inherit" onClick={handleLogout}>Logout</Button>
       <div>
-        <TicketsList tickets={tickets}/>
+      {loading ? <Spinner radius={120} color={"#333"} stroke={2} visible={true}/> : <TicketsList tickets={tickets}/> }
       <Button variant="contained" color="inherit" onClick={purchase} >purchase</Button>
       <Button variant="contained" color="inherit" onClick={validate}>validate Ticket</Button>
     </div>
