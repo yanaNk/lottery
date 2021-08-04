@@ -52,19 +52,29 @@ app.post("/users/logout", function (req, res) {
     return utils_1.handleResponse(req, res, 204, {}, "");
 });
 var ticketsLists = [];
+app.get("/allTickets", function (req, res) {
+    res.send(ticketsLists);
+});
 app.get("/notfication", function (req, res, next) {
     var result = ticketsMethods_1.checkAnyNotValidated(ticketsLists);
     res.send(result);
 });
-app.get("/validate/:ticketId", function (req, res, next) {
+app.get("/validate", function (req, res, next) {
     var relevantTicketindex = ticketsLists.findIndex(function (ticketToFind) { return ticketToFind.id == req.query.ticketId; });
-    var isValidated = ticketsMethods_1.validateTicket(ticketsLists[relevantTicketindex]);
-    ticketsLists[relevantTicketindex].isValidated = isValidated;
-    res.send(isValidated);
+    if (relevantTicketindex == -1)
+        res.send(false);
+    else {
+        if (ticketsLists[relevantTicketindex].isValidated)
+            res.send("already validated");
+        var isValidated = ticketsMethods_1.validateTicket(ticketsLists[relevantTicketindex]);
+        ticketsLists[relevantTicketindex].isValidated = isValidated;
+        res.send(isValidated);
+    }
 });
 app.post("/purchase", function (req, res) {
-    console.log("body is ", req.body);
+    console.log("purchase has been made ", req.body);
     var newTicket = ticketsMethods_1.generateTicket();
     ticketsLists.push(newTicket);
     res.send(newTicket.id);
 });
+//# sourceMappingURL=index.js.map

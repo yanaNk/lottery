@@ -6,3 +6,4 @@ var motorcycleType;
     motorcycleType[motorcycleType["road"] = 0] = "road";
     motorcycleType[motorcycleType["offRoad"] = 1] = "offRoad";
 })(motorcycleType = exports.motorcycleType || (exports.motorcycleType = {}));
+//# sourceMappingURL=motorcycleType.enum.js.map

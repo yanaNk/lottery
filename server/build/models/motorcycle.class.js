@@ -13,3 +13,4 @@ var motorcycle = /** @class */ (function () {
     return motorcycle;
 }());
 exports.motorcycle = motorcycle;
+//# sourceMappingURL=motorcycle.class.js.map

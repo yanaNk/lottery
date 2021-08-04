@@ -33,13 +33,7 @@ app.post("/users/signin", function (req, res) {
 
   // return 400 status if username/password is not exist
   if (!user || !pwd) {
-    return handleResponse(
-      req,
-      res,
-      400,
-      {},
-      "Username and Password required."
-    );
+    return handleResponse(req, res, 400, {}, "Username and Password required.");
   }
 
   const userData = userList.find(
@@ -48,13 +42,7 @@ app.post("/users/signin", function (req, res) {
 
   // return 401 status if the credential is not matched
   if (!userData) {
-    return handleResponse(
-      req,
-      res,
-      401,
-      {},
-      "Username or Password is Wrong."
-    );
+    return handleResponse(req, res, 401, {}, "Username or Password is Wrong.");
   }
 
   // get basic user details
@@ -74,33 +62,48 @@ app.post("/users/signin", function (req, res) {
   //res.cookie("refreshToken", refreshToken, COOKIE_OPTIONS);
   res.cookie("XSRF-TOKEN", tokenObj?.xsrfToken);
 
-  return handleResponse(req, res, 200,{
-    user: userObj,
-    token: tokenObj?.token,
-    expiredAt: tokenObj?.expiredAt,
-  },"");
+  return handleResponse(
+    req,
+    res,
+    200,
+    {
+      user: userObj,
+      token: tokenObj?.token,
+      expiredAt: tokenObj?.expiredAt,
+    },
+    ""
+  );
 });
 
 app.post("/users/logout", (req, res) => {
   clearTokens(req, res);
-  return handleResponse(req, res, 204,{},"");
+  return handleResponse(req, res, 204, {}, "");
 });
 var ticketsLists: any[] = [];
+
+app.get("/allTickets",(req,res) =>{
+  res.send(ticketsLists);
+})
 app.get("/notfication", (req, res, next) => {
   let result = checkAnyNotValidated(ticketsLists);
   res.send(result);
 });
 
-app.get("/validate/:ticketId", (req, res, next) => {
+app.get("/validate", (req, res, next) => {
   let relevantTicketindex = ticketsLists.findIndex(
     (ticketToFind) => ticketToFind.id == req.query.ticketId
   );
-  let isValidated = validateTicket(ticketsLists[relevantTicketindex]);
-  ticketsLists[relevantTicketindex].isValidated = isValidated;
-  res.send(isValidated);
+  if (relevantTicketindex == -1) res.send(false);
+  else {
+    if (ticketsLists[relevantTicketindex].isValidated)
+      res.send("already validated");
+    let isValidated = validateTicket(ticketsLists[relevantTicketindex]);
+    ticketsLists[relevantTicketindex].isValidated = isValidated;
+    res.send(isValidated);
+  }
 });
 app.post("/purchase", function (req, res) {
-  console.log("body is ", req.body);
+  console.log("purchase has been made ", req.body);
   let newTicket = generateTicket();
   ticketsLists.push(newTicket);
   res.send(newTicket.id);

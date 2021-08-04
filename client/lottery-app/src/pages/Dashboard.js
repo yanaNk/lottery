@@ -1,17 +1,39 @@
-import React,{ useState }  from 'react';
-import { getUser, removeUserSession } from '../Utils/Common';
+import React,{ useState,useEffect }  from 'react';
+import { removeUserSession } from '../Utils/Common';
 import axios from "axios";
-import { render } from "react-dom";
-import { faBell } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-function Dashboard(props) {
-  const user = getUser();
-  const tickets =[];
-  var relevantId = 0;
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+import MenuToolBar from './ToolBar';
+import Button from '@material-ui/core/Button';
+import TicketsList from './TicketsList';
 
-  // handle click event of logout button
+function Dashboard(props) {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [relevantId, setRelevantId] = useState(0);
+    const [tickets, setTickets] = useState([]);
+    const [ticket, setTicket] = useState('');
+   
+    useEffect(() => setTickets(getTicketList()), []);
+   
+    function handleAdd() {
+        const newList = tickets.concat({ ticket });
+        setTickets(newList);
+      }
+    const getTicketList = () => {
+        setError(null);
+        setLoading(true);
+        axios
+          .get("http://localhost:3000/allTickets")
+          .then((data) => {
+            setTickets(data.data);
+            setLoading(false);
+          })
+          .catch((error) => {
+            setLoading(false);
+            if (error.response.status === 401)
+              setError(error.response.data.message);
+            else setError("Something went wrong. Please try again later.");
+          });
+    };
   const handleLogout = () => {
     removeUserSession();
     props.history.push('/login');
@@ -23,14 +45,18 @@ function Dashboard(props) {
     axios
       .post("http://localhost:3000/purchase")
       .then((data) => {
-        relevantId = data.data;
-        console.log(this.relevantId);
+        setRelevantId(data.data)
+        alert("ticketId "+ relevantId);
         setLoading(false);
+        handleAdd();
+        getTicketList();
       })
       .catch((error) => {
         setLoading(false);
+        if(error.response != null){
         if (error?.response?.status === 401)
           setError(error?.response?.data?.message);
+        }
         else setError("Something went wrong. Please try again later.");
       });
   }
@@ -41,7 +67,8 @@ function Dashboard(props) {
         .get("http://localhost:3000/validate", {
           params:{ticketId:relevantId}
         })
-        .then(() => {
+        .then((data) => {
+          alert(data.data);
           setLoading(false);
         })
         .catch((error) => {
@@ -53,17 +80,15 @@ function Dashboard(props) {
   };
 
   return (
-    <div>
-      <header>
-      <FontAwesomeIcon icon={faBell} />
-      Welcome {user.name}!<br /><br />
-      </header>
-      <input type="button" onClick={handleLogout} value="Logout" />
+    <>
+     <MenuToolBar/>
+      <Button variant="contained" color="inherit" onClick={handleLogout}>Logout</Button>
       <div>
-      <input type="button" onClick={purchase} value="purchase" />
-      <input type="button" onClick={validate} value="validate Ticket" />
+        <TicketsList tickets={tickets}/>
+      <Button variant="contained" color="inherit" onClick={purchase} >purchase</Button>
+      <Button variant="contained" color="inherit" onClick={validate}>validate Ticket</Button>
     </div>
-    </div>
+    </>
     
   );
 }

@@ -6,3 +6,4 @@ var carTypes;
     carTypes[carTypes["Mazda"] = 0] = "Mazda";
     carTypes[carTypes["Toyota"] = 1] = "Toyota";
 })(carTypes = exports.carTypes || (exports.carTypes = {}));
+//# sourceMappingURL=carTypes.enum.js.map

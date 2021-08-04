@@ -27,3 +27,4 @@ var cashTicket = /** @class */ (function (_super) {
     return cashTicket;
 }(ticket_class_1.ticket));
 exports.cashTicket = cashTicket;
+//# sourceMappingURL=cashTicket.class.js.map

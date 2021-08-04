@@ -17,3 +17,4 @@ exports.userList = [
         isAdmin: true
     },
 ];
+//# sourceMappingURL=userLists.js.map

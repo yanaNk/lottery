@@ -28,3 +28,4 @@ var carTicket = /** @class */ (function (_super) {
     return carTicket;
 }(ticket_class_1.ticket));
 exports.carTicket = carTicket;
+//# sourceMappingURL=carTicket.class.js.map
