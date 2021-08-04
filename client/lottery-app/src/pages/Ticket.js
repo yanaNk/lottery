@@ -34,14 +34,11 @@ export default function Tikcet({ticket}){
             {bull}{ticket.purchaseDate}
           </Typography>
           <Typography className={classes.pos} color="textSecondary">
-            is validated : {ticket.validated}
+            is validated :{ String(ticket.isValidated) }
           </Typography>
           <Typography variant="body2" component="p">
           </Typography>
         </CardContent>
-        <CardActions>
-          <Button size="small">Learn More</Button>
-        </CardActions>
       </Card>
     )
 }
