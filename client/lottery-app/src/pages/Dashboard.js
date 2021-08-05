@@ -11,18 +11,19 @@ function Dashboard(props) {
     const [error, setError] = useState(null);
     const [relevantId, setRelevantId] = useState(0);
     const [tickets, setTickets] = useState([]);
-    const [ticket, setTicket] = useState('');
+    const [ticket, setTicket] = useState({});
    
     useEffect(() => setTickets(getTicketList()), []);
    
     function handleAdd() {
-        const newList = tickets.concat({ ticket });
+        const newList = tickets.concat({...ticket});
+        console.log({...ticket});
         setTickets(newList);
       }
 
     function handleUpdate(){
       const newList = tickets.map((item) => {
-        if (item.id === ticket.id) {
+        if (item.id === relevantId) {
           const updatedItem = {
             ...item,
           };
@@ -48,7 +49,7 @@ function Dashboard(props) {
             setLoading(false);
             setError(
               "Something went wrong. Please try again later." +
-                error.response.data.message
+                error?.response?.data?.message
             );
           });
     };
@@ -64,10 +65,11 @@ function Dashboard(props) {
       .post("http://localhost:3000/purchase")
       .then((data) => {
         setRelevantId(data.data);
-        alert("ticketId " + relevantId);
+        alert("ticketId " + data.data);
         setLoading(false);
-        getTicket();
+        getTicket(data.data);
         handleAdd();
+        
       })
       .catch((error) => {
         setLoading(false);
@@ -89,34 +91,34 @@ function Dashboard(props) {
         .then((data) => {
           alert(data.data);
           setLoading(false);
-          getTicket();
+          getTicket(relevantId);
           handleUpdate();
         })
         .catch((error) => {
           setLoading(false);
-          if (error.response.status === 401)
-            setError(error.response.data.message);
-          else setError("Something went wrong. Please try again later.");
+          setError(
+            "Something went wrong. Please try again later." +
+              error?.response?.data?.message)
         });
   };
 
-  const getTicket = () => {
+  const getTicket = (id) => {
     setError(null);
     setLoading(true);
     axios
       .get("http://localhost:3000/getTicket", {
-        params:{ticketId:relevantId}
+        params:{ticketId:id}
       })
       .then((data) => {
-        alert(data.data);
         setLoading(false);
+        setTicket(data.data);
         getTicketList();
       })
       .catch((error) => {
         setLoading(false);
-        if (error.response.status === 401)
-          setError(error.response.data.message);
-        else setError("Something went wrong. Please try again later.");
+        setError(
+          "Something went wrong. Please try again later." +
+            error?.response?.data?.message)
       });
 };
 
@@ -125,7 +127,7 @@ function Dashboard(props) {
      <MenuToolBar/>
       <Button variant="contained" color="inherit" onClick={handleLogout}>Logout</Button>
       <div>
-      {loading ? <Spinner radius={120} color={"#333"} stroke={2} visible={true}/> :  <div/>  }
+      {loading ? <Spinner radius={120} color={"#333"} stroke={2} visible={true}/> :  <p/>  }
       <TicketsList tickets={tickets}/> 
       <Button variant="contained" color="inherit" onClick={purchase} >purchase</Button>
       <Button variant="contained" color="inherit" onClick={validate}>validate Ticket</Button>

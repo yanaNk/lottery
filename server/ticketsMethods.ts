@@ -11,7 +11,8 @@ var factoryClasses: any = {
   "cashTicket" : cashTicket   
 }
   export function  validateTicket(ticket: any) {
-    return !(ticket instanceof lostTicket);
+    ticket.isValidated = true;
+    return ticket.price;
   }
 
   export function generateTicket() {

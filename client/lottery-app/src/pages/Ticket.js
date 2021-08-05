@@ -3,6 +3,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
+import { CardActions } from '@material-ui/core';
+import Price from './Price';
 const useStyles = makeStyles({
     root: {
       minWidth: 275,
@@ -22,6 +24,7 @@ const useStyles = makeStyles({
 export default function Tikcet({ticket}){
     const classes = useStyles();
     const bull = <span className={classes.bullet}>•</span>;
+    console.log(ticket);
     return (
         <Card className={classes.root}>
         <CardContent>
@@ -31,12 +34,14 @@ export default function Tikcet({ticket}){
           <Typography variant="h5" component="h2">
             {bull}{ticket.purchaseDate}
           </Typography>
-          <Typography className={classes.pos} color="textSecondary">
-            is validated :{ String(ticket.isValidated) }
-          </Typography>
-          <Typography variant="body2" component="p">
+          <Typography className={classes.pos} color="textSecondary" component={"div"}>
+            {ticket?.isValidated ?  "Validated" : "Need to be validated" }
+            {ticket?.isValidated ? <Price price ={ticket?.price}></Price> : <p/>}
           </Typography>
         </CardContent>
+        <CardActions>
+          
+        </CardActions>
       </Card>
     )
 }

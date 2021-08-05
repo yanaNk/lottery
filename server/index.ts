@@ -97,13 +97,12 @@ app.get("/validate", (req, res, next) => {
   else {
     if (ticketsLists[relevantTicketindex].isValidated)
       res.send("already validated");
-    let isValidated = validateTicket(ticketsLists[relevantTicketindex]);
-    ticketsLists[relevantTicketindex].isValidated = isValidated;
-    res.send(isValidated);
+    validateTicket(ticketsLists[relevantTicketindex]);
+    res.send(ticketsLists[relevantTicketindex]);
   }
 });
 app.post("/purchase", function (req, res) {
-  console.log("purchase has been made ", req.body);
+  console.log("purchase has been made ");
   let newTicket = generateTicket();
   ticketsLists.push(newTicket);
   res.send(newTicket.id);

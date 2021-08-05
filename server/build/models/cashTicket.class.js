@@ -22,6 +22,7 @@ var cashTicket = /** @class */ (function (_super) {
     function cashTicket() {
         var _this = _super.call(this) || this;
         _this.price = 1000;
+        _this.name = "cash";
         return _this;
     }
     return cashTicket;

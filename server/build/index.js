@@ -66,13 +66,12 @@ app.get("/validate", function (req, res, next) {
     else {
         if (ticketsLists[relevantTicketindex].isValidated)
             res.send("already validated");
-        var isValidated = ticketsMethods_1.validateTicket(ticketsLists[relevantTicketindex]);
-        ticketsLists[relevantTicketindex].isValidated = isValidated;
-        res.send(isValidated);
+        ticketsMethods_1.validateTicket(ticketsLists[relevantTicketindex]);
+        res.send(ticketsLists[relevantTicketindex]);
     }
 });
 app.post("/purchase", function (req, res) {
-    console.log("purchase has been made ", req.body);
+    console.log("purchase has been made ");
     var newTicket = ticketsMethods_1.generateTicket();
     ticketsLists.push(newTicket);
     res.send(newTicket.id);

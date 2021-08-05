@@ -22,6 +22,7 @@ var lostTicket = /** @class */ (function (_super) {
     function lostTicket() {
         var _this = _super.call(this) || this;
         _this.price = 0;
+        _this.name = "lost";
         return _this;
     }
     return lostTicket;

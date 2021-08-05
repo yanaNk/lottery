@@ -23,6 +23,7 @@ var motorcycleTicket = /** @class */ (function (_super) {
     function motorcycleTicket() {
         var _this = _super.call(this) || this;
         _this.price = new motorcycle_class_1.motorcycle();
+        _this.name = "motorcycle";
         return _this;
     }
     return motorcycleTicket;

@@ -13,7 +13,8 @@ var factoryClasses = {
     "cashTicket": cashTicket_class_1.cashTicket
 };
 function validateTicket(ticket) {
-    return !(ticket instanceof lostTicket_class_1.lostTicket);
+    ticket.isValidated = true;
+    return ticket.price;
 }
 exports.validateTicket = validateTicket;
 function generateTicket() {

@@ -22,6 +22,7 @@ var carTicket = /** @class */ (function (_super) {
     __extends(carTicket, _super);
     function carTicket() {
         var _this = _super.call(this) || this;
+        _this.name = "car";
         _this.price = new car_class_1.car();
         return _this;
     }
