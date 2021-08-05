@@ -18,8 +18,8 @@ function validateTicket(ticket) {
 exports.validateTicket = validateTicket;
 function generateTicket() {
     var newType = sample(Object.keys(factoryClasses));
-    console.log(factoryClasses);
-    var newTicket = factoryClasses[newType]();
+    var newTicket = new factoryClasses[newType]();
+    console.log(newTicket);
     return newTicket;
 }
 exports.generateTicket = generateTicket;

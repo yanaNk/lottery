@@ -77,4 +77,8 @@ app.post("/purchase", function (req, res) {
     ticketsLists.push(newTicket);
     res.send(newTicket.id);
 });
+app.get("/getTicket", function (req, res, next) {
+    var relevantTicket = ticketsLists.find(function (ticketToFind) { return ticketToFind.id == req.query.ticketId; });
+    res.send(relevantTicket);
+});
 //# sourceMappingURL=index.js.map

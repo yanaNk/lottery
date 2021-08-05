@@ -108,3 +108,10 @@ app.post("/purchase", function (req, res) {
   ticketsLists.push(newTicket);
   res.send(newTicket.id);
 });
+
+app.get("/getTicket", (req, res, next) => {
+  let relevantTicket = ticketsLists.find(
+    (ticketToFind) => ticketToFind.id == req.query.ticketId
+  );
+  res.send(relevantTicket);
+})

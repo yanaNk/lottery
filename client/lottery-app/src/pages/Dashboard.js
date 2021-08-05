@@ -19,6 +19,22 @@ function Dashboard(props) {
         const newList = tickets.concat({ ticket });
         setTickets(newList);
       }
+
+    function handleUpdate(){
+      const newList = tickets.map((item) => {
+        if (item.id === ticket.id) {
+          const updatedItem = {
+            ...item,
+          };
+   
+          return updatedItem;
+        }
+   
+        return item;
+      });
+   
+      setTickets(newList);
+    }
     const getTicketList = () => {
         setError(null);
         setLoading(true);
@@ -50,8 +66,8 @@ function Dashboard(props) {
         setRelevantId(data.data);
         alert("ticketId " + relevantId);
         setLoading(false);
+        getTicket();
         handleAdd();
-        getTicketList();
       })
       .catch((error) => {
         setLoading(false);
@@ -73,7 +89,8 @@ function Dashboard(props) {
         .then((data) => {
           alert(data.data);
           setLoading(false);
-          getTicketList();
+          getTicket();
+          handleUpdate();
         })
         .catch((error) => {
           setLoading(false);
@@ -83,12 +100,33 @@ function Dashboard(props) {
         });
   };
 
+  const getTicket = () => {
+    setError(null);
+    setLoading(true);
+    axios
+      .get("http://localhost:3000/getTicket", {
+        params:{ticketId:relevantId}
+      })
+      .then((data) => {
+        alert(data.data);
+        setLoading(false);
+        getTicketList();
+      })
+      .catch((error) => {
+        setLoading(false);
+        if (error.response.status === 401)
+          setError(error.response.data.message);
+        else setError("Something went wrong. Please try again later.");
+      });
+};
+
   return (
     <>
      <MenuToolBar/>
       <Button variant="contained" color="inherit" onClick={handleLogout}>Logout</Button>
       <div>
-      {loading ? <Spinner radius={120} color={"#333"} stroke={2} visible={true}/> : <TicketsList tickets={tickets}/> }
+      {loading ? <Spinner radius={120} color={"#333"} stroke={2} visible={true}/> :  <div/>  }
+      <TicketsList tickets={tickets}/> 
       <Button variant="contained" color="inherit" onClick={purchase} >purchase</Button>
       <Button variant="contained" color="inherit" onClick={validate}>validate Ticket</Button>
     </div>
