@@ -9,10 +9,13 @@ import Spinner from 'react-spinner-material';
 function Dashboard(props) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [relevantId, setRelevantId] = useState(0);
     const [tickets, setTickets] = useState([]);
     const [ticket, setTicket] = useState({});
    
+    const loginOutStyle ={
+      float:"right",
+      marginTop:"10px"
+    };
     useEffect(() => setTickets(getTicketList()), []);
    
     function handleAdd() {
@@ -21,21 +24,7 @@ function Dashboard(props) {
         setTickets(newList);
       }
 
-    function handleUpdate(){
-      const newList = tickets.map((item) => {
-        if (item.id === relevantId) {
-          const updatedItem = {
-            ...item,
-          };
-   
-          return updatedItem;
-        }
-   
-        return item;
-      });
-   
-      setTickets(newList);
-    }
+    
     const getTicketList = () => {
         setError(null);
         setLoading(true);
@@ -64,7 +53,6 @@ function Dashboard(props) {
     axios
       .post("http://localhost:3000/purchase")
       .then((data) => {
-        setRelevantId(data.data);
         alert("ticketId " + data.data);
         setLoading(false);
         getTicket(data.data);
@@ -81,33 +69,13 @@ function Dashboard(props) {
         }
       });
   };
-  const validate = () => {
-      setError(null);
-      setLoading(true);
-      axios
-        .get("http://localhost:3000/validate", {
-          params:{ticketId:relevantId}
-        })
-        .then((data) => {
-          alert(data.data);
-          setLoading(false);
-          getTicket(relevantId);
-          handleUpdate();
-        })
-        .catch((error) => {
-          setLoading(false);
-          setError(
-            "Something went wrong. Please try again later." +
-              error?.response?.data?.message)
-        });
-  };
-
+  
   const getTicket = (id) => {
     setError(null);
     setLoading(true);
     axios
       .get("http://localhost:3000/getTicket", {
-        params:{ticketId:id}
+        params: { ticketId: id },
       })
       .then((data) => {
         setLoading(false);
@@ -118,19 +86,19 @@ function Dashboard(props) {
         setLoading(false);
         setError(
           "Something went wrong. Please try again later." +
-            error?.response?.data?.message)
+            error?.response?.data?.message
+        );
       });
 };
 
   return (
     <>
      <MenuToolBar/>
-      <Button variant="contained" color="inherit" onClick={handleLogout}>Logout</Button>
+      <Button style={loginOutStyle} variant="contained" color="inherit" onClick={handleLogout}>Logout</Button>
       <div>
       {loading ? <Spinner radius={120} color={"#333"} stroke={2} visible={true}/> :  <p/>  }
       <TicketsList tickets={tickets}/> 
-      <Button variant="contained" color="inherit" onClick={purchase} >purchase</Button>
-      <Button variant="contained" color="inherit" onClick={validate}>validate Ticket</Button>
+      <Button variant="contained" color="secondary" onClick={purchase} >purchase</Button>
     </div>
     </>
     

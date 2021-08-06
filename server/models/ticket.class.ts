@@ -5,7 +5,7 @@ export abstract class ticket {
   isValidated: boolean;
   constructor() {
     this.id = uuid();
-    this.purchaseDate = new Date();
+    this.purchaseDate = new Date(Date.now());
     this.isValidated = false;
   }
 }

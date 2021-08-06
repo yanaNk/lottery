@@ -5,7 +5,7 @@ var uuid_1 = require("uuid");
 var ticket = /** @class */ (function () {
     function ticket() {
         this.id = uuid_1.v4();
-        this.purchaseDate = new Date();
+        this.purchaseDate = new Date(Date.now());
         this.isValidated = false;
     }
     return ticket;

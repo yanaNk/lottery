@@ -1,10 +1,11 @@
-import React,{ useState,useEffect }  from 'react';
+import React  from 'react';
 import Ticket from './Ticket';
 
 function TicketsList({tickets}) {
     
     if(tickets !=null){
-  return (tickets?.map((item) => {
+  return (
+    tickets?.map((item) => {
     return <Ticket key={item?.id} ticket={item} />;
   }));
 }

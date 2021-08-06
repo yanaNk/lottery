@@ -10,13 +10,13 @@ import { getUser } from '../Utils/Common';
 
 function MenuToolBar(props) {
     const useStyles = makeStyles((theme) => ({
-        root: {
-          flexGrow: 1,
-        },
-        title: {
-          flexGrow: 1,
-        },
-      }));
+      root: {
+        flexGrow: 1,
+      },
+      title: {
+        flexGrow: 1,
+      },
+    }));
       const classes = useStyles();
       const user = getUser();
     
