@@ -8,7 +8,7 @@ import Spinner from 'react-spinner-material';
 
 function Dashboard(props) {
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [errorNow, setError] = useState(null);
     const [tickets, setTickets] = useState([]);
     const [ticket, setTicket] = useState({});
    
@@ -20,7 +20,6 @@ function Dashboard(props) {
    
     function handleAdd() {
         const newList = tickets.concat({...ticket});
-        console.log({...ticket});
         setTickets(newList);
       }
 
@@ -40,6 +39,7 @@ function Dashboard(props) {
               "Something went wrong. Please try again later." +
                 error?.response?.data?.message
             );
+            console.log(errorNow)
           });
     };
   const handleLogout = () => {

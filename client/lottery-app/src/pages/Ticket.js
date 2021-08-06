@@ -7,6 +7,7 @@ import axios from "axios";
 import { CardActions } from '@material-ui/core';
 import Price from './Price';
 import Button from '@material-ui/core/Button';
+import Spinner from 'react-spinner-material';
 import './Ticket.css';
 const useStyles = makeStyles({
     bullet: {
@@ -21,11 +22,10 @@ const useStyles = makeStyles({
   
 export default function Tikcet({ticket}){
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [errorNow, setError] = useState(null);
     const [validation,setValidate] = useState(ticket.isValidated)
     const classes = useStyles();
     const bull = <span className={classes.bullet}>•</span>;
-    console.log(ticket);
     const validate = () => {
       setError(null);
       setLoading(true);
@@ -43,6 +43,7 @@ export default function Tikcet({ticket}){
             "Something went wrong. Please try again later." +
               error?.response?.data?.message
           );
+          console.log(errorNow);
         });
   };
     return (
@@ -51,7 +52,7 @@ export default function Tikcet({ticket}){
           <Typography className="title" color="textSecondary" gutterBottom>
           {validation ? "Validated" : "Need to be validated"}
           </Typography>
-          <Typography variant="h5" component="h2">
+          <Typography style={{marginBottom: "15px"}} variant="h5" component="h2">
             {bull}
             {ticket.purchaseDate}
           </Typography>
@@ -59,6 +60,7 @@ export default function Tikcet({ticket}){
           <Typography className ="validateButton"
             component={"div"}
           >
+            {loading ? <Spinner radius={120} color={"#333"} stroke={2} visible={true}/> :  <p/>  }
             {!validation ? (
               <Button variant="contained" color="primary" onClick={validate}>
                 validate Ticket
