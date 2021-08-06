@@ -15,18 +15,19 @@ import {
   handleResponse,
 } from "./utils";
 import express from "express";
-import bodyParser from "body-parser";
+import bodyParser, { urlencoded } from "body-parser";
 import { json } from "body-parser";
 import cors from "cors";
 import { Server } from 'socket.io';
 var app = express();
 var count = 0;
-app.use(bodyParser.urlencoded({ extended: true }));
+var clientPort =3001;
+var serverUrl =`http://localhost:${clientPort}`;
+app.use(urlencoded({ extended: true }));
 app.use(json());
-app.use(cors({origin:"http://localhost:3001"}));
+app.use(cors({ origin: serverUrl }));
 
-const server = app
-.listen(3000, () => console.log(`Listening Socket on 3000`));
+const server = app.listen(3000, () => console.log(`Listening Socket on 3000`));
 
 const io = new Server(server, { cors: { origin: '*' } });
 io.on('connection', (socket: any) => {
@@ -34,7 +35,7 @@ io.on('connection', (socket: any) => {
     clearInterval(interval);
     console.log("in clearing");
   }
-  interval = setInterval(() => sendNotfication(socket),1200);
+  interval = setInterval(() => sendNotfication(socket),120000);
   socket.on("disconnect",() =>{
     clearInterval(interval)
   })
