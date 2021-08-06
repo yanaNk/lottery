@@ -10,13 +10,41 @@ var express_1 = __importDefault(require("express"));
 var body_parser_1 = __importDefault(require("body-parser"));
 var body_parser_2 = require("body-parser");
 var cors_1 = __importDefault(require("cors"));
+var http = require("http");
+var socketServer = require("socket.io");
 var app = express_1.default();
-app.listen(3000, function () {
-    console.log("Server running on port 3000");
-});
+var count = 0;
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use(body_parser_2.json());
 app.use(cors_1.default());
+var server = http.createServer(app);
+var io = require('socket.io').listen(server);
+server.listen(3000, function () {
+    console.log("Server running on port 3000");
+});
+io.on('connection', function (socket) {
+    console.log('hey you');
+    if (interval) {
+        clearInterval(interval);
+        console.log("in clearing");
+    }
+    interval = setInterval(function () { return sendNotfication(socket); }, 120000);
+    socket.on("disconnect", function () {
+        clearInterval(interval);
+    });
+});
+var ticketsLists = [];
+var interval;
+var sendNotfication = function (socket) {
+    if (ticketsLists.length > 0) {
+        if (ticketsLists.some(function (ticket) { return ticket.isValidated == false; })) {
+            console.log(count);
+            count++;
+            socket.emit("fromServer", { count: "user did not validate" });
+        }
+    }
+    return;
+};
 app.post("/users/signin", function (req, res) {
     var user = req.body.username;
     var pwd = req.body.password;
@@ -51,7 +79,6 @@ app.post("/users/logout", function (req, res) {
     utils_1.clearTokens(req, res);
     return utils_1.handleResponse(req, res, 204, {}, "");
 });
-var ticketsLists = [];
 app.get("/allTickets", function (req, res) {
     res.send(ticketsLists);
 });

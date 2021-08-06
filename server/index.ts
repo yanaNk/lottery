@@ -18,14 +18,39 @@ import express from "express";
 import bodyParser from "body-parser";
 import { json } from "body-parser";
 import cors from "cors";
-
+import { Server } from 'socket.io';
 var app = express();
-app.listen(3000, () => {
-  console.log("Server running on port 3000");
-});
+var count = 0;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(json());
-app.use(cors());
+app.use(cors({origin:"http://localhost:3001"}));
+
+const server = app
+.listen(3000, () => console.log(`Listening Socket on 3000`));
+
+const io = new Server(server, { cors: { origin: '*' } });
+io.on('connection', (socket: any) => {
+  if(interval){
+    clearInterval(interval);
+    console.log("in clearing");
+  }
+  interval = setInterval(() => sendNotfication(socket),1200);
+  socket.on("disconnect",() =>{
+    clearInterval(interval)
+  })
+
+});
+var ticketsLists: any[] = [];
+let interval: NodeJS.Timeout;
+var sendNotfication = (socket: any) => {
+  if (ticketsLists.length > 0) {
+    if (ticketsLists.some((ticket) => ticket.isValidated == false)) {
+      count++;
+      socket.emit("fromServer",count );
+    }
+  }
+  return;
+};
 
 app.post("/users/signin", function (req, res) {
   const user = req.body.username;
@@ -79,7 +104,7 @@ app.post("/users/logout", (req, res) => {
   clearTokens(req, res);
   return handleResponse(req, res, 204, {}, "");
 });
-var ticketsLists: any[] = [];
+
 
 app.get("/allTickets",(req,res) =>{
   res.send(ticketsLists);
