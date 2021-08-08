@@ -4,7 +4,7 @@ import { cashTicket } from './models/cashTicket.class';
 import { lostTicket } from './models/lostTicket.class';
 import { ticket } from "./models/ticket.class";
 var sample = require("lodash.sample");
-var factoryClasses: any = {
+var factoryClasses: {[key:string]:any} = {
   "lostTicket": lostTicket,
   "carTicket":  carTicket,
   "motorcycleTicket": motorcycleTicket,
@@ -12,13 +12,12 @@ var factoryClasses: any = {
 }
   export function  validateTicket(ticket: any) {
     ticket.isValidated = true;
-    return ticket.price;
+    return ticket?.price;
   }
 
   export function generateTicket() {
     let newType = sample(Object.keys(factoryClasses));
     let newTicket = new factoryClasses[newType]();
-    console.log(newTicket);
     return newTicket;
   }
 

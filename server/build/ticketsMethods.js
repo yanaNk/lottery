@@ -14,13 +14,12 @@ var factoryClasses = {
 };
 function validateTicket(ticket) {
     ticket.isValidated = true;
-    return ticket.price;
+    return ticket === null || ticket === void 0 ? void 0 : ticket.price;
 }
 exports.validateTicket = validateTicket;
 function generateTicket() {
     var newType = sample(Object.keys(factoryClasses));
     var newTicket = new factoryClasses[newType]();
-    console.log(newTicket);
     return newTicket;
 }
 exports.generateTicket = generateTicket;

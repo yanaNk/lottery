@@ -1,32 +1,69 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var ticketsMethods_1 = require("./ticketsMethods");
-var userLists_1 = require("./userLists");
 var utils_1 = require("./utils");
 var express_1 = __importDefault(require("express"));
-var body_parser_1 = __importDefault(require("body-parser"));
+var body_parser_1 = require("body-parser");
 var body_parser_2 = require("body-parser");
 var cors_1 = __importDefault(require("cors"));
-var http = require("http");
-var socketServer = require("socket.io");
+var socket_io_1 = require("socket.io");
+var jsonwebtoken_1 = require("jsonwebtoken");
+var dotenv = __importStar(require("dotenv"));
+dotenv.config();
 var app = express_1.default();
 var count = 0;
-app.use(body_parser_1.default.urlencoded({ extended: true }));
+var clientPort = 3001;
+var serverUrl = "http://localhost:" + clientPort;
+var secret = "ABCDEF$123";
+app.use(body_parser_1.urlencoded({ extended: true }));
 app.use(body_parser_2.json());
-app.use(cors_1.default());
-var server = http.createServer(app);
-var io = require('socket.io').listen(server);
-server.listen(3000, function () {
-    console.log("Server running on port 3000");
+app.use(cors_1.default({ origin: serverUrl }));
+app.use(function (req, res, next) {
+    var token = req.headers['authorization'];
+    if (!token)
+        return next();
+    token = token.replace('Bearer ', '');
+    jsonwebtoken_1.verify(token, secret, function (err, user) {
+        if (err) {
+            return res.status(401).json({
+                error: true,
+                message: "Invalid user."
+            });
+        }
+        else {
+            req.user = user; //set the user to req so other routes can use it
+            next();
+        }
+    });
 });
+var server = app.listen(3000, function () { return console.log("Listening Socket on 3000"); });
+var io = new socket_io_1.Server(server, { cors: { origin: '*' } });
 io.on('connection', function (socket) {
-    console.log('hey you');
     if (interval) {
         clearInterval(interval);
-        console.log("in clearing");
+        count = 0;
     }
     interval = setInterval(function () { return sendNotfication(socket); }, 120000);
     socket.on("disconnect", function () {
@@ -38,9 +75,8 @@ var interval;
 var sendNotfication = function (socket) {
     if (ticketsLists.length > 0) {
         if (ticketsLists.some(function (ticket) { return ticket.isValidated == false; })) {
-            console.log(count);
             count++;
-            socket.emit("fromServer", { count: "user did not validate" });
+            socket.emit("fromServer", count);
         }
     }
     return;
@@ -48,36 +84,48 @@ var sendNotfication = function (socket) {
 app.post("/users/signin", function (req, res) {
     var user = req.body.username;
     var pwd = req.body.password;
-    // return 400 status if username/password is not exist
     if (!user || !pwd) {
-        return utils_1.handleResponse(req, res, 400, {}, "Username and Password required.");
+        return res.status(400).json({
+            error: true,
+            message: "Username or Password is required."
+        });
     }
-    var userData = userLists_1.userList.find(function (x) { return x.username === user && x.password === pwd; });
-    // return 401 status if the credential is not matched
-    if (!userData) {
-        return utils_1.handleResponse(req, res, 401, {}, "Username or Password is Wrong.");
+    var relevantUser = utils_1.getRelevantUser(user, pwd);
+    if (relevantUser == false) {
+        return res.status(401).json({
+            error: true,
+            message: "Username or Password is wrong."
+        });
     }
-    // get basic user details
-    var userObj = utils_1.getCleanUser(userData);
-    // generate access token
-    var tokenObj = utils_1.generateToken(userData);
-    // generate refresh token
-    var refreshToken = utils_1.generateRefreshToken(userObj === null || userObj === void 0 ? void 0 : userObj.userId) || 0;
-    // refresh token list to manage the xsrf token
-    if (refreshToken != null)
-        utils_1.refreshTokens[refreshToken] = tokenObj === null || tokenObj === void 0 ? void 0 : tokenObj.xsrfToken;
-    // set cookies
-    //res.cookie("refreshToken", refreshToken, COOKIE_OPTIONS);
-    res.cookie("XSRF-TOKEN", tokenObj === null || tokenObj === void 0 ? void 0 : tokenObj.xsrfToken);
-    return utils_1.handleResponse(req, res, 200, {
-        user: userObj,
-        token: tokenObj === null || tokenObj === void 0 ? void 0 : tokenObj.token,
-        expiredAt: tokenObj === null || tokenObj === void 0 ? void 0 : tokenObj.expiredAt,
-    }, "");
+    var token = utils_1.generateToken(relevantUser);
+    var userObj = utils_1.getCleanUser(relevantUser);
+    return res.json({ user: userObj, token: token });
 });
-app.post("/users/logout", function (req, res) {
-    utils_1.clearTokens(req, res);
-    return utils_1.handleResponse(req, res, 204, {}, "");
+app.get('/verifyToken', function (req, res) {
+    var token = req.query.token;
+    if (!token) {
+        return res.status(400).json({
+            error: true,
+            message: "Token is required."
+        });
+    }
+    // check token that was passed by decoding token using secret
+    jsonwebtoken_1.verify(token.toString(), secret, function (err, user) {
+        if (err)
+            return res.status(401).json({
+                error: true,
+                message: "Invalid token."
+            });
+        if (!utils_1.checkUserExists(user)) {
+            return res.status(401).json({
+                error: true,
+                message: "Invalid user."
+            });
+        }
+        var relevantUser = utils_1.getRelevantAfterLogIn(user);
+        var userObj = utils_1.getCleanUser(relevantUser);
+        return res.json({ user: userObj, token: token });
+    });
 });
 app.get("/allTickets", function (req, res) {
     res.send(ticketsLists);
@@ -98,7 +146,6 @@ app.get("/validate", function (req, res, next) {
     }
 });
 app.post("/purchase", function (req, res) {
-    console.log("purchase has been made ");
     var newTicket = ticketsMethods_1.generateTicket();
     ticketsLists.push(newTicket);
     res.send(newTicket.id);

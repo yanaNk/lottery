@@ -12,7 +12,6 @@ export function generateToken(user: any) {
     username: user.username,
     isAdmin: user.isAdmin
   };
-  console.log(secret);
   return sign(u, secret!, {
     expiresIn: 60 * 60 * 24 
   });

@@ -2,7 +2,7 @@
   "name": "lottery",
   "version": "1.0.0",
   "description": "lottery app",
-  "main": ".index.js",
+  "main": "./build/index.js",
   "scripts": {
     "test": "ng test",
     "tsc": "tsc",

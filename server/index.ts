@@ -21,7 +21,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 var app = express();
 var count = 0;
-var clientPort =3001;
+var clientPort = 3001;
 var serverUrl =`http://localhost:${clientPort}`;
 var secret = "ABCDEF$123";
 app.use(urlencoded({ extended: true }));
@@ -82,7 +82,6 @@ app.post("/users/signin", function (req, res) {
   }
  
   let relevantUser = getRelevantUser(user,pwd)
-  console.log(relevantUser);
   if (relevantUser == false) {
     return res.status(401).json({
       error: true,
@@ -97,7 +96,6 @@ app.post("/users/signin", function (req, res) {
 
 app.get('/verifyToken', function (req, res) {
   var token = req.query.token;
-  console.log("my token "+token);
   if (!token) {
     return res.status(400).json({
       error: true,
@@ -145,7 +143,6 @@ app.get("/validate", (req, res, next) => {
   }
 });
 app.post("/purchase", function (req, res) {
-  console.log("purchase has been made ");
   let newTicket = generateTicket();
   ticketsLists.push(newTicket);
   res.send(newTicket.id);
