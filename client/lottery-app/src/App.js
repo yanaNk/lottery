@@ -20,7 +20,7 @@ function App() {
     }
 
     axios
-      .get(`http://localhost:3000/verifyToken?token=${token}`)
+      .get(`${process.env.REACT_APP_API_URL}/verifyToken?token=${token}`)
       .then((response) => {
         setUserSession(response.data.token, response.data.user);
         setAuthLoading(false);
