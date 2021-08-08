@@ -5,7 +5,6 @@ export default function Price({price}){
   var priceOptions;
 
   if (price != null) {
-    console.log(price);
     if(typeof(price) == "number"){
         priceOptions= <option key={"money"} value={"key"}>
         {"money"}:{price}

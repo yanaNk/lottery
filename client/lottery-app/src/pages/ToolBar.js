@@ -8,16 +8,13 @@ import Typography from '@material-ui/core/Typography';
 import { getUser } from '../Utils/Common';
 import Badge from '@material-ui/core/Badge';
 import socketIOClient  from "socket.io-client";
-const ENDPOINT = "http://localhost:3000";
 
 function MenuToolBar() {
   const [notfication,setNotfication] = useState(0);
   useEffect(() => {
-    const socket = socketIOClient(ENDPOINT);
+    const socket = socketIOClient(process.env.REACT_APP_API_URL);
     socket.on("fromServer",data => {
       setNotfication(data);
-      console.log(data);
-      console.log(Object.entries(notfication));
     })
   },[])
     const useStyles = makeStyles(() => ({

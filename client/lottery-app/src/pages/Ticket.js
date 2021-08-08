@@ -30,7 +30,7 @@ export default function Tikcet({ticket}){
       setError(null);
       setLoading(true);
       axios
-        .get("http://localhost:3000/validate", {
+        .get(`${process.env.REACT_APP_API_URL}/validate`, {
           params: { ticketId: ticket.id },
         })
         .then((data) => {

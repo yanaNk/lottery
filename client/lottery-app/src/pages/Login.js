@@ -8,12 +8,11 @@ function Login(props) {
   const password = useFormInput("");
   const [error, setError] = useState(null);
 
-  // handle button click of login form
   const handleLogin = () => {
     setError(null);
     setLoading(true);
     axios
-      .post("http://localhost:3000/users/signin", {
+      .post(`${process.env.REACT_APP_API_URL}/users/signin`, {
         username: username.value,
         password: password.value,
       })
@@ -24,7 +23,7 @@ function Login(props) {
       })
       .catch((error) => {
         setLoading(false);
-        if(error.response !=null){
+        if(error?.response != null){
         if (error?.response?.status === 401)
           setError(error.response.data.message);
         }

@@ -16,6 +16,24 @@ function Dashboard(props) {
       float:"right",
       marginTop:"10px"
     };
+    const getTicketList = () => {
+      setError(null);
+      setLoading(true);
+      axios
+        .get(`${process.env.REACT_APP_API_URL}/allTickets`)
+        .then((data) => {
+          setTickets(data.data);
+          setLoading(false);
+        })
+        .catch((error) => {
+          setLoading(false);
+          setError(
+            "Something went wrong. Please try again later." +
+              error?.response?.data?.message
+          );
+          console.log(errorNow)
+        });
+  };
     useEffect(() => setTickets(getTicketList()), []);
    
     function handleAdd() {
@@ -24,24 +42,7 @@ function Dashboard(props) {
       }
 
     
-    const getTicketList = () => {
-        setError(null);
-        setLoading(true);
-        axios
-          .get("http://localhost:3000/allTickets")
-          .then((data) => {
-            setTickets(data.data);
-            setLoading(false);
-          })
-          .catch((error) => {
-            setLoading(false);
-            setError(
-              "Something went wrong. Please try again later." +
-                error?.response?.data?.message
-            );
-            console.log(errorNow)
-          });
-    };
+   
   const handleLogout = () => {
     removeUserSession();
     props.history.push('/login');
@@ -51,7 +52,7 @@ function Dashboard(props) {
     setError(null);
     setLoading(true);
     axios
-      .post("http://localhost:3000/purchase")
+      .post(`${process.env.REACT_APP_API_URL}/purchase`)
       .then((data) => {
         alert("ticketId " + data.data);
         setLoading(false);
@@ -74,7 +75,7 @@ function Dashboard(props) {
     setError(null);
     setLoading(true);
     axios
-      .get("http://localhost:3000/getTicket", {
+      .get(`${process.env.REACT_APP_API_URL}/getTicket`, {
         params: { ticketId: id },
       })
       .then((data) => {

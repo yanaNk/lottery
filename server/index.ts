@@ -3,37 +3,54 @@ import {
   generateTicket,
   validateTicket,
 } from "./ticketsMethods";
-import { userList } from "./userLists";
 import {
-  refreshTokens,
-  COOKIE_OPTIONS,
+  checkUserExists,
   generateToken,
-  generateRefreshToken,
   getCleanUser,
-  verifyToken,
-  clearTokens,
-  handleResponse,
+  getRelevantAfterLogIn,
+  getRelevantUser,
 } from "./utils";
 import express from "express";
-import bodyParser, { urlencoded } from "body-parser";
+import { urlencoded } from "body-parser";
 import { json } from "body-parser";
 import cors from "cors";
 import { Server } from 'socket.io';
+import { verify } from "jsonwebtoken";
+import * as dotenv from "dotenv";
+
+dotenv.config();
 var app = express();
 var count = 0;
 var clientPort =3001;
 var serverUrl =`http://localhost:${clientPort}`;
+var secret = "ABCDEF$123";
 app.use(urlencoded({ extended: true }));
 app.use(json());
 app.use(cors({ origin: serverUrl }));
-
+app.use(function (req:any, res, next) {
+  var token = req.headers['authorization'];
+  if (!token) return next(); 
+ 
+  token = token.replace('Bearer ', '');
+  verify(token, secret!, function (err: any, user: any) {
+    if (err) {
+      return res.status(401).json({
+        error: true,
+        message: "Invalid user."
+      });
+    } else {
+      req.user! = user; //set the user to req so other routes can use it
+      next();
+    }
+  });
+});
 const server = app.listen(3000, () => console.log(`Listening Socket on 3000`));
 
 const io = new Server(server, { cors: { origin: '*' } });
 io.on('connection', (socket: any) => {
   if(interval){
     clearInterval(interval);
-    console.log("in clearing");
+    count = 0;
   }
   interval = setInterval(() => sendNotfication(socket),120000);
   socket.on("disconnect",() =>{
@@ -57,55 +74,55 @@ app.post("/users/signin", function (req, res) {
   const user = req.body.username;
   const pwd = req.body.password;
 
-  // return 400 status if username/password is not exist
   if (!user || !pwd) {
-    return handleResponse(req, res, 400, {}, "Username and Password required.");
+    return res.status(400).json({
+      error: true,
+      message: "Username or Password is required."
+    });
   }
-
-  const userData = userList.find(
-    (x) => x.username === user && x.password === pwd
-  );
-
-  // return 401 status if the credential is not matched
-  if (!userData) {
-    return handleResponse(req, res, 401, {}, "Username or Password is Wrong.");
+ 
+  let relevantUser = getRelevantUser(user,pwd)
+  console.log(relevantUser);
+  if (relevantUser == false) {
+    return res.status(401).json({
+      error: true,
+      message: "Username or Password is wrong."
+    });
   }
-
-  // get basic user details
-  const userObj = getCleanUser(userData);
-
-  // generate access token
-  const tokenObj = generateToken(userData);
-
-  // generate refresh token
-  const refreshToken = generateRefreshToken(userObj?.userId) || 0;
-
-  // refresh token list to manage the xsrf token
-  if (refreshToken != null)
-    (refreshTokens as any)[refreshToken] = tokenObj?.xsrfToken;
-
-  // set cookies
-  //res.cookie("refreshToken", refreshToken, COOKIE_OPTIONS);
-  res.cookie("XSRF-TOKEN", tokenObj?.xsrfToken);
-
-  return handleResponse(
-    req,
-    res,
-    200,
-    {
-      user: userObj,
-      token: tokenObj?.token,
-      expiredAt: tokenObj?.expiredAt,
-    },
-    ""
-  );
+ 
+  const token = generateToken(relevantUser);
+  const userObj = getCleanUser(relevantUser);
+  return res.json({ user: userObj, token });
 });
 
-app.post("/users/logout", (req, res) => {
-  clearTokens(req, res);
-  return handleResponse(req, res, 204, {}, "");
+app.get('/verifyToken', function (req, res) {
+  var token = req.query.token;
+  console.log("my token "+token);
+  if (!token) {
+    return res.status(400).json({
+      error: true,
+      message: "Token is required."
+    });
+  }
+  // check token that was passed by decoding token using secret
+  verify(token.toString(), secret!, function (err, user) {
+    if (err) return res.status(401).json({
+      error: true,
+      message: "Invalid token."
+    });
+ 
+    
+    if (!checkUserExists(user)) {
+      return res.status(401).json({
+        error: true,
+        message: "Invalid user."
+      });
+    }
+    var relevantUser = getRelevantAfterLogIn(user)
+    var userObj = getCleanUser(relevantUser);
+    return res.json({ user: userObj, token });
+  });
 });
-
 
 app.get("/allTickets",(req,res) =>{
   res.send(ticketsLists);
